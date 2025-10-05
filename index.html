@@ -43,7 +43,7 @@
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            overflow: hidden;
+            overflow: hidden;    
         }
 
         header {
@@ -52,6 +52,10 @@
             padding: 25px 30px;
             text-align: center;
             position: relative;
+            display: Flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px; 
         }
 
         header h1 {
@@ -506,7 +510,7 @@
 <body>
     <div class="container">
         <header>
-            <div class="jamb-logo">JAMB</div>
+            <div class="jamb-logo">JAMB </div>
             <h1>Science Subject Quiz</h1>
             <p>Select 4 subjects to begin your practice</p>
             <div class="timer-container" id="timer-container" style="display: none;">
@@ -593,6 +597,16 @@
                     question: "What is the plural form of 'criterion'?",
                     options: ["Criterions", "Criterias", "Criteria", "Criterion"],
                     answer: 2
+                },
+                {
+                    question: "Choose the correct spelling:",
+                    options: ["Accomodate", "Acommodate", "Accommodate", "Acommodate"],
+                    answer: 2
+                },
+                {
+                    question: "Which word is an adverb?",
+                    options: ["Quick", "Quickly", "Quicker", "Quickest"],
+                    answer: 1
                 }
             ],
             maths: [
@@ -610,6 +624,16 @@
                     question: "If sin θ = 3/5, what is cos θ?",
                     options: ["4/5", "3/4", "5/4", "5/3"],
                     answer: 0
+                },
+                {
+                    question: "What is the value of 2³ × 3²?",
+                    options: ["72", "36", "18", "144"],
+                    answer: 0
+                },
+                {
+                    question: "Solve: 3(x - 2) = 15",
+                    options: ["5", "7", "9", "10"],
+                    answer: 1
                 }
             ],
             physics: [
@@ -627,6 +651,16 @@
                     question: "What is the speed of light in vacuum?",
                     options: ["3 × 10⁶ m/s", "3 × 10⁸ m/s", "3 × 10¹⁰ m/s", "3 × 10⁴ m/s"],
                     answer: 1
+                },
+                {
+                    question: "Which of these is a scalar quantity?",
+                    options: ["Velocity", "Acceleration", "Force", "Speed"],
+                    answer: 3
+                },
+                {
+                    question: "What is the unit of electric current?",
+                    options: ["Volt", "Ohm", "Ampere", "Watt"],
+                    answer: 2
                 }
             ],
             chemistry: [
@@ -643,6 +677,16 @@
                 {
                     question: "What is the pH of a neutral solution?",
                     options: ["0", "7", "14", "10"],
+                    answer: 1
+                },
+                {
+                    question: "Which element has atomic number 1?",
+                    options: ["Helium", "Hydrogen", "Lithium", "Oxygen"],
+                    answer: 1
+                },
+                {
+                    question: "What is H₂O?",
+                    options: ["Hydrogen Peroxide", "Water", "Hydrochloric Acid", "Methane"],
                     answer: 1
                 }
             ],
@@ -661,6 +705,16 @@
                     question: "Which blood cells are responsible for clotting?",
                     options: ["Red Blood Cells", "White Blood Cells", "Platelets", "Plasma"],
                     answer: 2
+                },
+                {
+                    question: "What is the basic unit of life?",
+                    options: ["Atom", "Molecule", "Cell", "Tissue"],
+                    answer: 2
+                },
+                {
+                    question: "Which of these is NOT a type of tissue?",
+                    options: ["Epithelial", "Muscle", "Nervous", "Organ"],
+                    answer: 3
                 }
             ],
             agric: [
@@ -678,6 +732,16 @@
                     question: "Which farming system involves growing crops and rearing animals on the same farm?",
                     options: ["Mixed farming", "Monoculture", "Shifting cultivation", "Plantation agriculture"],
                     answer: 0
+                },
+                {
+                    question: "What is the process of adding nutrients to soil called?",
+                    options: ["Irrigation", "Fertilization", "Tillage", "Harvesting"],
+                    answer: 1
+                },
+                {
+                    question: "Which of these is a cash crop?",
+                    options: ["Yam", "Cassava", "Cocoa", "Rice"],
+                    answer: 2
                 }
             ],
             geography: [
@@ -694,6 +758,16 @@
                 {
                     question: "What is the capital of Nigeria?",
                     options: ["Lagos", "Abuja", "Kano", "Port Harcourt"],
+                    answer: 1
+                },
+                {
+                    question: "Which continent is the largest by area?",
+                    options: ["Africa", "Asia", "North America", "Europe"],
+                    answer: 1
+                },
+                {
+                    question: "What is the equator?",
+                    options: ["A line of longitude", "A line of latitude", "A time zone", "A climate zone"],
                     answer: 1
                 }
             ],
@@ -712,6 +786,16 @@
                     question: "What is the value of sin(90°)?",
                     options: ["0", "1", "-1", "0.5"],
                     answer: 1
+                },
+                {
+                    question: "What is the integral of 2x dx?",
+                    options: ["x", "x²", "2x²", "x²/2"],
+                    answer: 1
+                },
+                {
+                    question: "What is the limit of (x²-1)/(x-1) as x approaches 1?",
+                    options: ["0", "1", "2", "Undefined"],
+                    answer: 2
                 }
             ]
         };
@@ -809,27 +893,27 @@
         function startQuiz() {
             // Generate questions from selected subjects
             allQuestions = [];
-            const questionsPerSubject = Math.floor(20 / selectedSubjects.length);
-            let remainingQuestions = 20;
             
+            // Ensure we have at least one question per subject
             selectedSubjects.forEach(subjectId => {
-                const subjectQuestions = quizQuestions[subjectId] || [];
-                const numQuestions = Math.min(questionsPerSubject, subjectQuestions.length, remainingQuestions);
-                const selectedQs = getRandomQuestions(subjectQuestions, numQuestions);
-                allQuestions = allQuestions.concat(selectedQs);
-                remainingQuestions -= numQuestions;
+                if (quizQuestions[subjectId] && quizQuestions[subjectId].length > 0) {
+                    // Get some questions from each selected subject
+                    const subjectQuestions = quizQuestions[subjectId];
+                    const numQuestions = Math.ceil(20 / selectedSubjects.length);
+                    
+                    // Take up to numQuestions from this subject
+                    for (let i = 0; i < Math.min(numQuestions, subjectQuestions.length); i++) {
+                        allQuestions.push(subjectQuestions[i]);
+                    }
+                }
             });
             
-            // Fill remaining questions if needed
-            while (allQuestions.length < 20 && remainingQuestions > 0) {
+            // If we don't have enough questions, add more from any subject
+            while (allQuestions.length < 20) {
                 const randomSubject = selectedSubjects[Math.floor(Math.random() * selectedSubjects.length)];
-                const subjectQuestions = quizQuestions[randomSubject] || [];
-                if (subjectQuestions.length > 0) {
-                    const randomQuestion = subjectQuestions[Math.floor(Math.random() * subjectQuestions.length)];
-                    if (!allQuestions.includes(randomQuestion)) {
-                        allQuestions.push(randomQuestion);
-                        remainingQuestions--;
-                    }
+                if (quizQuestions[randomSubject] && quizQuestions[randomSubject].length > 0) {
+                    const randomQuestion = quizQuestions[randomSubject][Math.floor(Math.random() * quizQuestions[randomSubject].length)];
+                    allQuestions.push(randomQuestion);
                 }
             }
             
@@ -858,6 +942,8 @@
 
         // Get random questions from an array
         function getRandomQuestions(questions, count) {
+            if (!questions || questions.length === 0) return [];
+            
             const shuffled = [...questions].sort(() => 0.5 - Math.random());
             return shuffled.slice(0, count);
         }
@@ -905,6 +991,11 @@
 
         // Load a specific question
         function loadQuestion(index) {
+            if (!allQuestions || allQuestions.length === 0) {
+                console.error("No questions available!");
+                return;
+            }
+            
             const question = allQuestions[index];
             
             // Clear previous content
