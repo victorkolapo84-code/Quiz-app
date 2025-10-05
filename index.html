@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMB Science Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --success: #10b981;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .jamb-logo {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .timer-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-icon {
+            font-size: 1.2rem;
+        }
+
+        .timer {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .timer.warning {
+            color: var(--warning);
+        }
+
+        .timer.critical {
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .screen {
+            display: none;
+            padding: 30px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .subject-selection {
+            text-align: center;
+        }
+
+        .subject-selection h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .subject-instruction {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            text-align: left;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .subject-card {
+            background: white;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .subject-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .subject-card.selected {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+        }
+
+        .subject-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .subject-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .subject-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .selection-info {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-count {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(to right, #1d367a, #2a6fd6);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .progress-container {
+            padding: 20px 30px;
+            background-color: var(--light);
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-info {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+            flex-grow: 1;
+            margin: 0 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .quiz-container {
+            padding: 30px;
+        }
+
+        .question-number {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 18px 20px;
+            background-color: var(--light);
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .option:hover {
+            background-color: #eff6ff;
+            border-color: var(--secondary);
+        }
+
+        .option.selected {
+            background-color: #dbeafe;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+        }
+
+        .option.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+
+        .option.incorrect {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+        }
+
+        .option-letter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 36px;
+            height: 36px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .score {
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
+        .message {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            color: var(--gray);
+        }
+
+        .summary {
+            background-color: var(--light);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 25px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .subject-combo {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .time-used {
+            color: var(--warning);
+            font-weight: 600;
+        }
+
+        /* Time warning for current question */
+        .time-warning {
+            background-color: #fff8e1;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--warning);
+            display: none;
+        }
+
+        .time-warning.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .timer-container {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .progress-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .progress-bar {
+                width: 100%;
+                margin: 10px 0 0 0;
+            }
+            
+            .subject-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .question-text {
+                font-size: 1.3rem;
+            }
+            
+            .option {
+                padding: 15px;
+                font-size: 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 20px;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .screen {
+                padding: 20px;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .score {
+                font-size: 4rem;
+            }
+            
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="jamb-logo">JAMB</div>
+            <h1>Science Subject Quiz</h1>
+            <p>Select 4 subjects to begin your practice</p>
+            <div class="timer-container" id="timer-container" style="display: none;">
+                <span class="timer-icon">⏱️</span>
+                <span class="timer" id="question-timer">45</span>
+            </div>
+        </header>
+        
+        <div class="progress-container" id="progress-container" style="display: none;">
+            <div class="progress-info">Question <span id="current-q">1</span> of <span id="total-q">20</span></div>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="progress-info">Score: <span id="score-display">0</span></div>
+        </div>
+        
+        <!-- Subject Selection Screen -->
+        <div class="screen active" id="subject-screen">
+            <div class="subject-selection">
+                <h2>Select Your 4 Science Subjects</h2>
+                
+                <div class="subject-instruction">
+                    <p><strong>Instructions:</strong> JAMB requires candidates to select 4 subjects for UTME. For Science students, you must select:</p>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>English Language (compulsory)</li>
+                        <li>Mathematics (compulsory for Science)</li>
+                        <li>Two other Science subjects of your choice</li>
+                    </ul>
+                </div>
+                
+                <div class="subject-grid" id="subject-grid">
+                    <!-- Subjects will be populated by JavaScript -->
+                </div>
+                
+                <div class="selection-info">
+                    <div class="selected-count">Selected: <span id="selected-count">2</span>/4</div>
+                    <button class="btn btn-primary" id="start-btn" disabled>Start Quiz</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div class="screen" id="quiz-screen">
+            <div class="quiz-container" id="quiz">
+                <!-- Questions will be loaded here by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div class="screen" id="results-screen">
+            <div class="results-container">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Science subjects for JAMB
+        const scienceSubjects = [
+            { id: 'english', name: 'English Language', description: 'Compulsory for all', compulsory: true },
+            { id: 'maths', name: 'Mathematics', description: 'Compulsory for Science', compulsory: true },
+            { id: 'physics', name: 'Physics', description: 'Core Science subject' },
+            { id: 'chemistry', name: 'Chemistry', description: 'Core Science subject' },
+            { id: 'biology', name: 'Biology', description: 'Core Science subject' },
+            { id: 'agric', name: 'Agricultural Science', description: 'Science subject' },
+            { id: 'geography', name: 'Geography', description: 'Science subject' },
+            { id: 'further_maths', name: 'Further Mathematics', description: 'Advanced Maths' }
+        ];
+
+        // Quiz questions by subject
+        const quizQuestions = {
+            english: [
+                {
+                    question: "Which of the following is a synonym for 'benevolent'?",
+                    options: ["Malevolent", "Kind", "Hostile", "Cruel"],
+                    answer: 1
+                },
+                {
+                    question: "Identify the figure of speech in: 'The world is a stage.'",
+                    options: ["Metaphor", "Simile", "Personification", "Hyperbole"],
+                    answer: 0
+                },
+                {
+                    question: "What is the plural form of 'criterion'?",
+                    options: ["Criterions", "Criterias", "Criteria", "Criterion"],
+                    answer: 2
+                }
+            ],
+            maths: [
+                {
+                    question: "Solve for x: 2x + 5 = 15",
+                    options: ["5", "10", "7.5", "20"],
+                    answer: 0
+                },
+                {
+                    question: "What is the area of a circle with radius 7cm? (π = 22/7)",
+                    options: ["44 cm²", "154 cm²", "308 cm²", "22 cm²"],
+                    answer: 1
+                },
+                {
+                    question: "If sin θ = 3/5, what is cos θ?",
+                    options: ["4/5", "3/4", "5/4", "5/3"],
+                    answer: 0
+                }
+            ],
+            physics: [
+                {
+                    question: "What is the SI unit of force?",
+                    options: ["Joule", "Watt", "Newton", "Pascal"],
+                    answer: 2
+                },
+                {
+                    question: "Which law states that 'for every action, there is an equal and opposite reaction'?",
+                    options: ["Newton's First Law", "Newton's Second Law", "Newton's Third Law", "Law of Conservation of Momentum"],
+                    answer: 2
+                },
+                {
+                    question: "What is the speed of light in vacuum?",
+                    options: ["3 × 10⁶ m/s", "3 × 10⁸ m/s", "3 × 10¹⁰ m/s", "3 × 10⁴ m/s"],
+                    answer: 1
+                }
+            ],
+            chemistry: [
+                {
+                    question: "What is the chemical symbol for gold?",
+                    options: ["Ag", "Au", "Fe", "Pb"],
+                    answer: 1
+                },
+                {
+                    question: "Which gas is most abundant in the Earth's atmosphere?",
+                    options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Argon"],
+                    answer: 2
+                },
+                {
+                    question: "What is the pH of a neutral solution?",
+                    options: ["0", "7", "14", "10"],
+                    answer: 1
+                }
+            ],
+            biology: [
+                {
+                    question: "Which organelle is known as the powerhouse of the cell?",
+                    options: ["Nucleus", "Ribosome", "Mitochondria", "Lysosome"],
+                    answer: 2
+                },
+                {
+                    question: "What is the process by which plants make food?",
+                    options: ["Respiration", "Photosynthesis", "Transpiration", "Digestion"],
+                    answer: 1
+                },
+                {
+                    question: "Which blood cells are responsible for clotting?",
+                    options: ["Red Blood Cells", "White Blood Cells", "Platelets", "Plasma"],
+                    answer: 2
+                }
+            ],
+            agric: [
+                {
+                    question: "Which of the following is a legume?",
+                    options: ["Maize", "Rice", "Soybean", "Wheat"],
+                    answer: 2
+                },
+                {
+                    question: "What is the main function of roots in plants?",
+                    options: ["Photosynthesis", "Transpiration", "Anchorage and absorption", "Reproduction"],
+                    answer: 2
+                },
+                {
+                    question: "Which farming system involves growing crops and rearing animals on the same farm?",
+                    options: ["Mixed farming", "Monoculture", "Shifting cultivation", "Plantation agriculture"],
+                    answer: 0
+                }
+            ],
+            geography: [
+                {
+                    question: "What is the longest river in the world?",
+                    options: ["Amazon", "Nile", "Mississippi", "Yangtze"],
+                    answer: 1
+                },
+                {
+                    question: "Which layer of the atmosphere contains the ozone layer?",
+                    options: ["Troposphere", "Stratosphere", "Mesosphere", "Thermosphere"],
+                    answer: 1
+                },
+                {
+                    question: "What is the capital of Nigeria?",
+                    options: ["Lagos", "Abuja", "Kano", "Port Harcourt"],
+                    answer: 1
+                }
+            ],
+            further_maths: [
+                {
+                    question: "What is the derivative of x³?",
+                    options: ["3x", "3x²", "x²", "x⁴/4"],
+                    answer: 1
+                },
+                {
+                    question: "If log₁₀(x) = 2, what is x?",
+                    options: ["10", "20", "100", "1000"],
+                    answer: 2
+                },
+                {
+                    question: "What is the value of sin(90°)?",
+                    options: ["0", "1", "-1", "0.5"],
+                    answer: 1
+                }
+            ]
+        };
+
+        // DOM elements
+        const subjectScreen = document.getElementById('subject-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const subjectGrid = document.getElementById('subject-grid');
+        const selectedCount = document.getElementById('selected-count');
+        const startBtn = document.getElementById('start-btn');
+        const timerContainer = document.getElementById('timer-container');
+        const progressContainer = document.getElementById('progress-container');
+        const quizContainer = document.getElementById('quiz');
+        const currentQ = document.getElementById('current-q');
+        const totalQ = document.getElementById('total-q');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressBar = document.getElementById('progress');
+        const questionTimer = document.getElementById('question-timer');
+        
+        // Quiz state
+        let selectedSubjects = ['english', 'maths']; // English and Maths are compulsory
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let timeLeft = 45;
+        let timerInterval = null;
+        let allQuestions = [];
+
+        // Initialize subject selection
+        function initSubjectSelection() {
+            // Create subject cards
+            scienceSubjects.forEach(subject => {
+                const card = document.createElement('div');
+                card.className = 'subject-card';
+                if (subject.compulsory || selectedSubjects.includes(subject.id)) {
+                    card.classList.add('selected');
+                }
+                if (subject.compulsory) {
+                    card.style.opacity = '0.7';
+                    card.style.cursor = 'not-allowed';
+                }
+                
+                card.innerHTML = `
+                    <h3>${subject.name}</h3>
+                    <p>${subject.description}</p>
+                `;
+                
+                if (!subject.compulsory) {
+                    card.addEventListener('click', () => toggleSubject(subject.id));
+                }
+                
+                subjectGrid.appendChild(card);
+            });
+            
+            updateSelectionCount();
+        }
+
+        // Toggle subject selection
+        function toggleSubject(subjectId) {
+            const index = selectedSubjects.indexOf(subjectId);
+            
+            if (index === -1) {
+                // Add subject if we have less than 4
+                if (selectedSubjects.length < 4) {
+                    selectedSubjects.push(subjectId);
+                }
+            } else {
+                // Remove subject (only if not compulsory)
+                if (!scienceSubjects.find(s => s.id === subjectId).compulsory) {
+                    selectedSubjects.splice(index, 1);
+                }
+            }
+            
+            // Update UI
+            document.querySelectorAll('.subject-card').forEach((card, i) => {
+                const subject = scienceSubjects[i];
+                if (selectedSubjects.includes(subject.id)) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+            
+            updateSelectionCount();
+        }
+
+        // Update selection count and button state
+        function updateSelectionCount() {
+            selectedCount.textContent = selectedSubjects.length;
+            startBtn.disabled = selectedSubjects.length !== 4;
+        }
+
+        // Start the quiz
+        function startQuiz() {
+            // Generate questions from selected subjects
+            allQuestions = [];
+            const questionsPerSubject = Math.floor(20 / selectedSubjects.length);
+            let remainingQuestions = 20;
+            
+            selectedSubjects.forEach(subjectId => {
+                const subjectQuestions = quizQuestions[subjectId] || [];
+                const numQuestions = Math.min(questionsPerSubject, subjectQuestions.length, remainingQuestions);
+                const selectedQs = getRandomQuestions(subjectQuestions, numQuestions);
+                allQuestions = allQuestions.concat(selectedQs);
+                remainingQuestions -= numQuestions;
+            });
+            
+            // Fill remaining questions if needed
+            while (allQuestions.length < 20 && remainingQuestions > 0) {
+                const randomSubject = selectedSubjects[Math.floor(Math.random() * selectedSubjects.length)];
+                const subjectQuestions = quizQuestions[randomSubject] || [];
+                if (subjectQuestions.length > 0) {
+                    const randomQuestion = subjectQuestions[Math.floor(Math.random() * subjectQuestions.length)];
+                    if (!allQuestions.includes(randomQuestion)) {
+                        allQuestions.push(randomQuestion);
+                        remainingQuestions--;
+                    }
+                }
+            }
+            
+            // Shuffle questions
+            shuffleArray(allQuestions);
+            
+            // Initialize quiz state
+            currentQuestionIndex = 0;
+            userAnswers = new Array(allQuestions.length).fill(null);
+            score = 0;
+            
+            // Show quiz screen
+            subjectScreen.classList.remove('active');
+            quizScreen.classList.add('active');
+            timerContainer.style.display = 'flex';
+            progressContainer.style.display = 'flex';
+            
+            // Update UI
+            totalQ.textContent = allQuestions.length;
+            scoreDisplay.textContent = score;
+            
+            // Load first question
+            loadQuestion(currentQuestionIndex);
+            updateProgress();
+        }
+
+        // Get random questions from an array
+        function getRandomQuestions(questions, count) {
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Shuffle array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Start the question timer
+        function startQuestionTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timeLeft = 45;
+            updateTimerDisplay();
+            questionTimer.classList.remove('warning', 'critical');
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft === 10) {
+                    questionTimer.classList.add('warning');
+                }
+                
+                if (timeLeft === 5) {
+                    questionTimer.classList.remove('warning');
+                    questionTimer.classList.add('critical');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    goToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            questionTimer.textContent = timeLeft;
+        }
+
+        // Load a specific question
+        function loadQuestion(index) {
+            const question = allQuestions[index];
+            
+            // Clear previous content
+            quizContainer.innerHTML = '';
+            
+            // Create question elements
+            const questionNumber = document.createElement('div');
+            questionNumber.className = 'question-number';
+            questionNumber.textContent = `Question ${index + 1} of ${allQuestions.length}`;
+            
+            const questionText = document.createElement('h2');
+            questionText.className = 'question-text';
+            questionText.textContent = question.question;
+            
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'options-container';
+            
+            const timeWarning = document.createElement('div');
+            timeWarning.className = 'time-warning';
+            timeWarning.textContent = "Hurry! Time is running out!";
+            
+            const controls = document.createElement('div');
+            controls.className = 'controls';
+            
+            const prevButton = document.createElement('button');
+            prevButton.className = 'btn btn-outline';
+            prevButton.textContent = 'Previous';
+            prevButton.disabled = index === 0;
+            prevButton.addEventListener('click', goToPrevQuestion);
+            
+            const nextButton = document.createElement('button');
+            nextButton.className = 'btn btn-primary';
+            nextButton.textContent = index === allQuestions.length - 1 ? 'Finish Quiz' : 'Next';
+            nextButton.disabled = userAnswers[index] === null;
+            nextButton.addEventListener('click', goToNextQuestion);
+            
+            // Create options
+            question.options.forEach((option, i) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (userAnswers[index] === i) {
+                    optionElement.classList.add('selected');
+                }
+                
+                const letter = document.createElement('div');
+                letter.className = 'option-letter';
+                letter.textContent = String.fromCharCode(65 + i);
+                
+                const text = document.createElement('div');
+                text.textContent = option;
+                
+                optionElement.appendChild(letter);
+                optionElement.appendChild(text);
+                
+                optionElement.addEventListener('click', () => selectOption(i, nextButton));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            controls.appendChild(prevButton);
+            controls.appendChild(nextButton);
+            
+            quizContainer.appendChild(questionNumber);
+            quizContainer.appendChild(questionText);
+            quizContainer.appendChild(optionsContainer);
+            quizContainer.appendChild(timeWarning);
+            quizContainer.appendChild(controls);
+            
+            // Update current question display
+            currentQ.textContent = index + 1;
+            
+            // Start timer
+            startQuestionTimer();
+            
+            // Scroll to top
+            quizContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Handle option selection
+        function selectOption(optionIndex, nextButton) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            const selectedOption = document.querySelectorAll('.option')[optionIndex];
+            selectedOption.classList.add('selected');
+            
+            // Save answer
+            userAnswers[currentQuestionIndex] = optionIndex;
+            
+            // Enable next button
+            nextButton.disabled = false;
+            
+            // Stop timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+
+        // Go to next question
+        function goToNextQuestion() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            if (currentQuestionIndex < allQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+                updateProgress();
+            } else {
+                showResults();
+            }
+        }
+
+        // Go to previous question
+        function goToPrevQuestion() {
+            if (currentQuestionIndex > 0) {
+                if (timerInterval) clearInterval(timerInterval);
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+                updateProgress();
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestionIndex) / allQuestions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Show results
+        function showResults() {
+            // Calculate score
+            score = 0;
+            allQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.answer) {
+                    score++;
+                }
+            });
+            
+            // Update score display
+            scoreDisplay.textContent = score;
+            
+            // Hide quiz and show results
+            quizScreen.classList.remove('active');
+            resultsScreen.classList.add('active');
+            timerContainer.style.display = 'none';
+            progressContainer.style.display = 'none';
+            
+            // Get selected subject names
+            const subjectNames = selectedSubjects.map(id => 
+                scienceSubjects.find(s => s.id === id).name
+            ).join(', ');
+            
+            // Create results content
+            resultsScreen.innerHTML = `
+                <h2>Quiz Completed!</h2>
+                <div class="subject-combo">${subjectNames}</div>
+                <div class="score">${score}/${allQuestions.length}</div>
+                <div class="message">${getScoreMessage()}</div>
+                
+                <div class="summary">
+                    <div class="summary-item">
+                        <span>Total Questions</span>
+                        <span>${allQuestions.length}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Correct Answers</span>
+                        <span>${score}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Incorrect Answers</span>
+                        <span>${allQuestions.length - score}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Percentage</span>
+                        <span>${Math.round((score / allQuestions.length) * 100)}%</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="restart-btn">Restart Quiz</button>
+            `;
+            
+            // Add restart button event
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+        }
+
+        // Get message based on score
+        function getScoreMessage() {
+            const percentage = (score / allQuestions.length) * 100;
+            if (percentage === 100) return "Outstanding! You're JAMB ready!";
+            if (percentage >= 80) return "Excellent performance!";
+            if (percentage >= 60) return "Good job! Keep practicing.";
+            if (percentage >= 40) return "Fair attempt. Review your weak areas.";
+            return "You need more practice. Study harder!";
+        }
+
+        // Restart the quiz
+        function restartQuiz() {
+            resultsScreen.classList.remove('active');
+            subjectScreen.classList.add('active');
+            
+            // Reset selected subjects (keep compulsory)
+            selectedSubjects = ['english', 'maths'];
+            updateSelectionCount();
+            
+            // Update UI
+            document.querySelectorAll('.subject-card').forEach((card, i) => {
+                const subject = scienceSubjects[i];
+                if (subject.compulsory) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        }
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', () => {
+            initSubjectSelection();
+            startBtn.addEventListener('click', startQuiz);
+        });
+    </script>
+</body>
+</html>
